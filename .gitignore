@@ -81,3 +81,21 @@ logs/*.csv
 tmp/
 temp/
 *.tmp
+
+# --------------------------------------------------------------------------
+# Reproducibility exceptions (see README "Reproducibility" section).
+#
+# The blanket *.parquet / *.csv / results/*.csv rules above are exactly why
+# this repo previously had .gitkeep-only data/ dirs, no committed model, and
+# no results/metrics.csv despite the README documenting them as expected
+# outputs -- there was never a path for `make eval`'s outputs to be tracked.
+# These explicit exceptions let the frozen sample data, trained model, and
+# real measured metrics produced by scripts/run_real_pipeline.py be
+# committed, while everything else generated locally (full-size re-fetches,
+# scratch logs, etc.) stays ignored as before.
+# --------------------------------------------------------------------------
+!data/raw/sample_*.parquet
+!data/processed/sample_*.parquet
+!results/metrics.csv
+!results/walk_forward_folds.csv
+!results/run_manifest.json

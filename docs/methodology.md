@@ -1,5 +1,15 @@
 # Evaluation Methodology
 
+> **2026-08-13 audit note:** the specific numbers throughout this document (84.2% accuracy, ablation
+> deltas, 82.3% ETH accuracy, precision-at-confidence figures) were found to be hardcoded in
+> `generate_results_plots.py`, never measured. A real run on 2026-08-13 measured AUROC 0.922 /
+> Accuracy 85.0% (pooled walk-forward out-of-fold, LightGBM only); ablations and the cross-asset
+> ETH test were not reproduced. See the main
+> [README's Reproducibility section](../README.md#-reproducibility-audit-2026-08-13) for the real
+> numbers, what was and wasn't reproduced, and how to re-run it yourself. The methodology
+> *description* below (walk-forward mechanics, regime bucketing, label rules) remains an accurate
+> description of what the code does; only the specific reported numbers are unverified/historical.
+
 ## Temporal Validation
 
 ### Walk-Forward Time-Series Cross-Validation
@@ -25,17 +35,21 @@ Repeat until:   T+7d reaches end of data
 Target labels computed from future prices:
 - **Prediction time:** `t`
 - **Target return:** `(close[t+5] - close[t]) / close[t]`
-- **Label:** `1` if return > `+0.15%`, `0` if return < `-0.15%`, else dropped
+- **Label:** `1` if return > `+0.2%`, `0` if return < `-0.2%`, else dropped (this is the actual value
+  in `config_ultimate.yaml`; this doc previously said ±0.15%)
 
 **Guarantee:** Features at time `t` never use information from `t+1` onwards.
 
 ### Neutral Zone Filtering
 
 To reduce label noise, we filter "neutral" samples:
-- Drop samples where `|return| < 0.15%`
-- Rationale: Small moves (< 0.15%) are dominated by noise, not signal
+- Drop samples where `|return| < 0.2%` **on the 5-, 10-, AND 15-minute horizon simultaneously**
+  (a row needs a decisive label on all three to survive `_clean_data()`'s `dropna()`)
+- Rationale: Small moves (< 0.2%) are dominated by noise, not signal
 
-**Impact:** Reduces dataset size by ~30%, but improves signal quality.
+**Impact:** measured 2026-08-13 at **87.3%** of rows dropped (8,203 kept of 64,801 raw 1-minute
+bars) — not the "~30%" previously estimated here. See the main README's Reproducibility section for
+what this means for how the reported accuracy/AUROC should be interpreted.
 
 ## Regime-Aware Evaluation
 

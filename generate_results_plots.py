@@ -1,5 +1,17 @@
 """
 Generate performance diagrams and curves for README
+
+*** WARNING - DO NOT USE THIS FILE'S OUTPUT AS A REAL RESULT ***
+A portfolio audit (2026-08-13) found that every number in this script is a
+HARDCODED CONSTANT (0.916 AUROC, 84.2% accuracy, +14.2% PnL, etc.) copied
+from the README, not something measured by running the pipeline. The
+"equity curve" below literally back-solves random daily returns so they
+compound to exactly +14.2% (see the `target_total = 0.142` / adjustment
+factor block) -- it is illustrative fan-art, not a backtest result.
+Running this script regenerates plots that assert the same unverified
+numbers; it does not validate or reproduce anything. For real, measured
+metrics see results/metrics.csv, results/run_manifest.json, and
+scripts/run_real_pipeline.py, and the README's "Reproducibility" section.
 """
 import numpy as np
 import pandas as pd

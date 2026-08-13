@@ -1,0 +1,55 @@
+{
+  "seed": 42,
+  "history_days": 45,
+  "primary_pair": "BTCUSDT",
+  "correlation_pairs": [
+    "ETHUSDT",
+    "BNBUSDT"
+  ],
+  "target_horizon_minutes": 5,
+  "walk_forward": {
+    "train_days": 20,
+    "test_days": 5,
+    "step_days": 5,
+    "embargo_minutes": 60,
+    "n_folds": 4
+  },
+  "costs": {
+    "taker_fee": 0.001,
+    "slippage": 0.0005,
+    "round_trip_cost": 0.003
+  },
+  "confidence_threshold": 0.6,
+  "date_range": {
+    "start": "2026-07-02 20:00:00",
+    "end": "2026-08-13 05:15:00"
+  },
+  "n_rows_features": 8203,
+  "n_features": 85,
+  "results": {
+    "scope": "overall",
+    "n_samples": 2906,
+    "accuracy": 0.8499655884377151,
+    "auroc": 0.9220947478125431,
+    "f1": 0.863237139272271,
+    "precision_at_confidence_0.6": 0.8633585041352032,
+    "num_trades": 197,
+    "total_return_after_costs": -0.07764736933263061,
+    "win_rate": 0.41116751269035534,
+    "sharpe_proxy": -1.49083650460586
+  },
+  "per_regime": [
+    {
+      "regime": "Normal",
+      "n": 603,
+      "accuracy": 0.8159203980099502,
+      "auroc": 0.8977103809375901
+    },
+    {
+      "regime": "High Vol",
+      "n": 2303,
+      "accuracy": 0.8588797221016066,
+      "auroc": 0.9285941086835312
+    }
+  ]
+}

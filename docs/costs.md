@@ -1,5 +1,13 @@
 # Transaction Cost Model
 
+> **2026-08-13 audit note:** the specific numbers in "Cost Impact on Performance" below were found
+> to be hardcoded in `generate_results_plots.py`, not measured. A real run on 2026-08-13 measured
+> `+66.45%` (before costs) → `-7.76%` (after costs) on 197 real walk-forward trades — costs flipped
+> the sign, not just shrank it. See the main [README's Reproducibility section](../README.md#-reproducibility-audit-2026-08-13)
+> for full details and caveats (the underlying trade tape is a filtered, non-contiguous timeline —
+> treat these as illustrative, not validated returns). The numbers below are the ORIGINAL,
+> unverified claim, kept for historical reference only.
+
 ## Overview
 
 All backtest results include transaction costs:
