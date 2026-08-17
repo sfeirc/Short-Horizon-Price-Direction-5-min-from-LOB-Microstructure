@@ -1,10 +1,52 @@
 # Short-Horizon Directional Forecast from Limit-Order-Book Microstructure
 
-[![Reproducible](https://img.shields.io/badge/reproducible-seeded-green.svg)](https://github.com/yourusername/crypto-trading-system)
+[![CI](https://github.com/sfeirc/Short-Horizon-Price-Direction-5-min-from-LOB-Microstructure/actions/workflows/test.yml/badge.svg)](https://github.com/sfeirc/Short-Horizon-Price-Direction-5-min-from-LOB-Microstructure/actions/workflows/test.yml)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Reproducible](https://img.shields.io/badge/reproducible-seeded-green.svg)](https://github.com/sfeirc/Short-Horizon-Price-Direction-5-min-from-LOB-Microstructure)
 [![Time-split CV](https://img.shields.io/badge/validation-time--split-blue.svg)](docs/methodology.md)
 [![Costs Modeled](https://img.shields.io/badge/costs-fees%2Bslippage-orange.svg)](docs/costs.md)
 [![Config-driven](https://img.shields.io/badge/config-YAML-brightgreen.svg)](config_ultimate.yaml)
-[![CI](https://img.shields.io/badge/CI-passing-success.svg)](.github/workflows/test.yml)
+
+A short-horizon (5-minute) directional forecasting system for BTC/ETH/BNB: features engineered
+from multi-timeframe returns, volatility, volume, and OHLCV-derived microstructure proxies feed a
+gradient-boosted classifier, evaluated with genuine walk-forward time-series validation and a
+cost-aware backtest (real exchange fees + slippage) instead of a single in-sample accuracy number.
+
+## Why this matters across industries
+
+Predicting short-horizon returns from market microstructure is obviously core to quant/finance —
+market making, statistical arbitrage, and execution all lean on exactly this kind of signal. But the
+discipline this repository is actually built around — engineering features from raw, noisy market
+data, then subjecting a model's claimed accuracy to genuine out-of-sample, walk-forward evaluation
+with realistic transaction costs before trusting it — transfers directly to any applied-ML role in
+tech/AI, where an offline metric has to survive contact with real deployment costs (latency, compute,
+the cost of a false positive) to mean anything. It also transfers to consulting: this project's own
+[reproducibility audit](#-reproducibility-audit-2026-08-13) — publicly documenting that an earlier
+version of this README's headline numbers were unverifiable, then re-deriving a real, reproducible
+number instead of quietly patching the claim — is exactly the kind of defensible, auditable evaluation
+methodology a client or regulator expects to be able to trace end to end.
+
+## 🔁 Pipeline (as actually run 2026-08-13)
+
+```mermaid
+flowchart TD
+    A["Binance REST API klines<br/>BTCUSDT + ETHUSDT/BNBUSDT, 1m (+15m/1h/4h HTF)"] --> B["data_manager_worldclass.py<br/>_download_klines"]
+    B --> C["data/raw/sample_*.parquet<br/>~130k raw candles"]
+    C --> D["feature_engine_worldclass.py<br/>create_features: 85 microstructure-proxy features"]
+    D --> E["data/processed/sample_features_5m.parquet<br/>8,203 rows x 91 cols"]
+    E --> F["Walk-forward split<br/>20d train / 5d test / 5d step / 1h embargo"]
+    F --> G["Fold i: LightGBM.fit on train window"]
+    G --> H["predict_proba on strictly-future test window"]
+    H --> I["Pooled out-of-fold predictions, n=2,906"]
+    I --> J["Accuracy / AUROC / F1 / regime + confidence breakdown"]
+    I --> K["Cost-aware backtest<br/>fee 0.10% + slippage 0.05%, per side"]
+    K --> L["PnL after costs, win rate, trade count"]
+```
+
+Every stage above is unmodified real code (`data_manager_worldclass.py` / `feature_engine_worldclass.py`
+/ `scripts/run_real_pipeline.py`) — this is not an aspirational diagram, it's what
+[Reproducing the Real Results](#-reproducing-the-real-results) below actually executes.
 
 ---
 
@@ -158,7 +200,7 @@ numbers, and Reproducibility below for what it would take to actually measure th
 ## 🚀 Reproducing the Real Results
 
 ```bash
-git clone <this repo>
+git clone https://github.com/sfeirc/Short-Horizon-Price-Direction-5-min-from-LOB-Microstructure.git
 cd Short-Horizon-Price-Direction-5-min-from-LOB-Microstructure
 
 # Option 1: replay from the committed frozen sample (no network needed, ~15s)
